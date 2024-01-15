@@ -9,31 +9,20 @@ namespace Verifica_OOP
 {
     class Persona
     {
+        private bool IsValidName(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Length > 2;
+        }
+
         public string nome;
-        private string cognome;
         public string Nome
         {
             get => nome;
             set
             {
-                if (value.Length > 2 || value != null)
+                if (IsValidName(value))
                 {
                     nome = value;
-                }
-                else
-                {
-                    Console.WriteLine("Nome troppo corto o non assegnato");
-                }
-            }
-        }
-        public string Cognome
-        {
-            get => cognome;
-            set
-            {
-                if (value.Length > 2 || value != null)
-                {
-                    cognome = value;
                 }
                 else
                 {
@@ -41,7 +30,7 @@ namespace Verifica_OOP
                 }
             }
         }
-
+        public string Provincia { get; set; }
     }
     class Conto : Persona
     {
@@ -61,10 +50,11 @@ namespace Verifica_OOP
             set { chiuso = value; }
         }
 
-        public Conto()
+        public Conto(string _provincia)
         {
             Euro = 0;
             Chiuso = true;
+            Provincia = _provincia;
         }
         public void AzzeraConto()
         {
@@ -113,27 +103,40 @@ namespace Verifica_OOP
     }
     class Banca
     {
+        private bool IsValidName(string value)
+        {
+            return !string.IsNullOrEmpty(value) && value.Length > 2;
+        }
+
         private Conto[] conti = new Conto[100];
         public Banca()
         {
             for (int i = 0; i < 100; i++)
             {
-                conti[i] = new Conto();
+                conti[i] = new Conto("ProvinciaDiDefault"); // Puoi impostare una provincia di default o chiedere all'utente di inserirla.
             }
         }
-        public void ApriConto(string nomeTitolare)
+        public void ApriConto(string nomeTitolare, string provincia)
         {
-            for (int i = 0; i < 100; i++)
+            if (IsValidName(nomeTitolare))
             {
-                if (conti[i].Chiuso)
+                for (int i = 0; i < 100; i++)
                 {
-                    conti[i].AzzeraConto();
-                    conti[i].nome = nomeTitolare;
-                    conti[i].Apri();
-                    return;
+                    if (conti[i].Chiuso)
+                    {
+                        conti[i].AzzeraConto();
+                        conti[i].Nome = nomeTitolare;
+                        conti[i].Provincia = provincia;
+                        conti[i].Apri();
+                        return;
+                    }
                 }
+                Console.WriteLine("Limite massimo di conti raggiunto.");
             }
-            Console.WriteLine("Limite massimo di conti raggiunto.");
+            else
+            {
+                Console.WriteLine("Nome del titolare del conto non valido.");
+            }
         }
         public void ChiudiConto()
         {
@@ -149,10 +152,15 @@ namespace Verifica_OOP
             if (int.TryParse(Console.ReadLine(), out int numeroConto) && numeroConto > 0)
             {
                 Console.Write("Inserisci l'importo da depositare: ");
-                float cifra = float.Parse(Console.ReadLine());
-                conti[numeroConto - 1].Deposita(cifra);
+                if (float.TryParse(Console.ReadLine(), out float cifra) && cifra > 0)
+                {
+                    conti[numeroConto - 1].Deposita(cifra);
+                }
+                else
+                {
+                    Console.WriteLine("Importo non valido.");
+                }
             }
-
         }
         public void PrelevaDaConto()
         {
@@ -160,8 +168,14 @@ namespace Verifica_OOP
             if (int.TryParse(Console.ReadLine(), out int numeroConto) && numeroConto > 0)
             {
                 Console.Write("Inserisci l'importo da prelevare: ");
-                float cifra = float.Parse(Console.ReadLine());
-                conti[numeroConto - 1].Preleva(cifra);
+                if (float.TryParse(Console.ReadLine(), out float cifra) && cifra > 0)
+                {
+                    conti[numeroConto - 1].Preleva(cifra);
+                }
+                else
+                {
+                    Console.WriteLine("Importo non valido.");
+                }
             }
         }
         public void VediSaldoConto()
@@ -180,8 +194,23 @@ namespace Verifica_OOP
                 conti[numeroConto - 1].GetInfo();
             }
         }
+        public double SaldoTotaleProvincia(string provincia)
+        {
+            double saldoTotale = 0;
+
+            foreach (Conto conto in conti)
+            {
+                if (!conto.Chiuso && conto.Nome != null && conto.Provincia == provincia)
+                {
+                    saldoTotale += conto.Euro;
+                }
+            }
+
+            Console.WriteLine($"Il saldo totale per la provincia {provincia} è di {saldoTotale} Euro.");
+            return saldoTotale;
+        }
     }
-}
+    }
 
 class Program
 {
@@ -198,6 +227,7 @@ class Program
             Console.WriteLine("4. Preleva da Conto");
             Console.WriteLine("5. Vedi Saldo Conto");
             Console.WriteLine("6. Vedi Info Conto");
+            Console.WriteLine("7. Vedi Saldo totale di una provincia");
             Console.WriteLine("0. Esci");
 
             Console.Write("Scegli un'opzione: ");
@@ -208,7 +238,9 @@ class Program
                     case 1:
                         Console.Write("Inserisci il nome del titolare del conto: ");
                         string nomeTitolare = Console.ReadLine();
-                        banca.ApriConto(nomeTitolare);
+                        Console.Write("Inserisci la provincia del titolare del conto: ");
+                        string provinciaTitolare = Console.ReadLine();
+                        banca.ApriConto(nomeTitolare, provinciaTitolare);
                         break;
                     case 2:
                         banca.ChiudiConto();
@@ -225,6 +257,11 @@ class Program
                     case 6:
                         banca.VediInfoConto();
                         break;
+                    case 7:
+                        Console.Write("Inserisci il nome della provincia: ");
+                        string provincia = Console.ReadLine();
+                        banca.SaldoTotaleProvincia(provincia);
+                        break;
                     case 0:
                         Environment.Exit(0);
                         break;
@@ -233,6 +270,10 @@ class Program
                         break;
 
                 }
+            }
+            else
+            {
+                Console.WriteLine("Inserisci un numero valido.");
             }
         } while (scelta != 0);
     }
