@@ -95,7 +95,7 @@ namespace Verifica_OOP
             Console.WriteLine($"Nome: {Nome}");
             if (chiuso == false)
             {
-                Console.WriteLine($"Saldo: {euro} Euro , Stato: Aperto");
+                Console.WriteLine($"Saldo: {euro} Euro , Stato: Aperto , Provincia {Provincia}");
             }
             else
                 Console.WriteLine("Stato: chiuso");
@@ -116,7 +116,7 @@ namespace Verifica_OOP
                 conti[i] = new Conto("ProvinciaDiDefault"); // Puoi impostare una provincia di default o chiedere all'utente di inserirla.
             }
         }
-        public void ApriConto(string nomeTitolare, string provincia)
+        public void ApriConto(string nomeTitolare, string provinciaTitolare)
         {
             if (IsValidName(nomeTitolare))
             {
@@ -126,7 +126,7 @@ namespace Verifica_OOP
                     {
                         conti[i].AzzeraConto();
                         conti[i].Nome = nomeTitolare;
-                        conti[i].Provincia = provincia;
+                        conti[i].Provincia = provinciaTitolare;
                         conti[i].Apri();
                         return;
                     }
@@ -141,6 +141,8 @@ namespace Verifica_OOP
         public void ChiudiConto()
         {
             Console.Write("Inserisci il numero del conto da chiudere: ");
+            Console.WriteLine(" ");
+
             if (int.TryParse(Console.ReadLine(), out int numeroConto) && numeroConto > 0)
             {
                 conti[numeroConto - 1].Chiusura();
@@ -149,9 +151,13 @@ namespace Verifica_OOP
         public void DepositaSuConto()
         {
             Console.Write("Inserisci il numero del conto su cui vuoi aggiungere soldi: ");
+            Console.WriteLine(" ");
+
             if (int.TryParse(Console.ReadLine(), out int numeroConto) && numeroConto > 0)
             {
                 Console.Write("Inserisci l'importo da depositare: ");
+                Console.WriteLine(" ");
+
                 if (float.TryParse(Console.ReadLine(), out float cifra) && cifra > 0)
                 {
                     conti[numeroConto - 1].Deposita(cifra);
@@ -165,9 +171,13 @@ namespace Verifica_OOP
         public void PrelevaDaConto()
         {
             Console.Write("Inserisci il numero del conto su cui vuoi prelevare soldi: ");
+            Console.WriteLine(" ");
+
             if (int.TryParse(Console.ReadLine(), out int numeroConto) && numeroConto > 0)
             {
                 Console.Write("Inserisci l'importo da prelevare: ");
+                Console.WriteLine(" ");
+
                 if (float.TryParse(Console.ReadLine(), out float cifra) && cifra > 0)
                 {
                     conti[numeroConto - 1].Preleva(cifra);
@@ -180,7 +190,9 @@ namespace Verifica_OOP
         }
         public void VediSaldoConto()
         {
-            Console.Write("Inserisci il numero del conto su cui vuoi vedere i soldi: ");
+            Console.Write("Inserisci il numero del conto su cui vuoi vedere i soldi: "); 
+            Console.WriteLine(" ");
+
             if (int.TryParse(Console.ReadLine(), out int numeroConto) && numeroConto > 0)
             {
                 conti[numeroConto - 1].Saldo();
@@ -189,6 +201,8 @@ namespace Verifica_OOP
         public void VediInfoConto()
         {
             Console.Write("Inserisci il numero del conto di cui vedere le informazioni: ");
+            Console.WriteLine(" ");
+
             if (int.TryParse(Console.ReadLine(), out int numeroConto) && numeroConto > 0)
             {
                 conti[numeroConto - 1].GetInfo();
@@ -200,13 +214,15 @@ namespace Verifica_OOP
 
             foreach (Conto conto in conti)
             {
-                if (!conto.Chiuso && conto.Nome != null && conto.Provincia == provincia)
+                if (!conto.Chiuso && conto.Nome != null && conto.Provincia != null && conto.Provincia == provincia)
                 {
                     saldoTotale += conto.Euro;
                 }
             }
 
             Console.WriteLine($"Il saldo totale per la provincia {provincia} è di {saldoTotale} Euro.");
+            Console.WriteLine(" ");
+
             return saldoTotale;
         }
     }
@@ -218,7 +234,7 @@ class Program
     {
         Banca banca = new Banca();
         int scelta;
-
+        
         do
         {
             Console.WriteLine("1. Apri Conto");
@@ -238,7 +254,9 @@ class Program
                     case 1:
                         Console.Write("Inserisci il nome del titolare del conto: ");
                         string nomeTitolare = Console.ReadLine();
+                        Console.WriteLine(" ");
                         Console.Write("Inserisci la provincia del titolare del conto: ");
+                        Console.WriteLine(" ");
                         string provinciaTitolare = Console.ReadLine();
                         banca.ApriConto(nomeTitolare, provinciaTitolare);
                         break;
@@ -259,6 +277,7 @@ class Program
                         break;
                     case 7:
                         Console.Write("Inserisci il nome della provincia: ");
+                        Console.WriteLine(" ");
                         string provincia = Console.ReadLine();
                         banca.SaldoTotaleProvincia(provincia);
                         break;
@@ -275,6 +294,8 @@ class Program
             {
                 Console.WriteLine("Inserisci un numero valido.");
             }
+            Console.ReadKey();
+            Console.Clear();
         } while (scelta != 0);
     }
 }
